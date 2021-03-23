@@ -216,6 +216,7 @@ def update_firmware(ctx, stage0, stage1):
 @click.pass_context
 def realtime(ctx):
     #file = open("/home/jon/750.bin", 'rb')
+    print("hello?")
     control_interface = common_preamble(ctx.obj.get("name"), ctx.obj.get("hostname"))
     log.debug("Get device info...")
     response = control_interface.get_device_info()
