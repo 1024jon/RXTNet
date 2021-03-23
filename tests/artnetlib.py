@@ -1,14 +1,19 @@
 import sys
+import mmap
+import os
 
 from socket import (socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_REUSEADDR,SO_BROADCAST)
 from struct import pack, unpack
 from contextlib import suppress
 
-
 UDP_IP = "192.168.255.255"
 UDP_PORT = 6454
 
 BROADCAST_PORT = 7788
+
+bufferlocation = '/tmp/'
+bufferdict = {}
+filedict = {}
 
 
 class ArtnetPacket:
@@ -66,9 +71,17 @@ def listen_and_redirect_artnet_packets():
         try:
             data, addr = sock.recvfrom(1024)
             packet = ArtnetPacket().unpack_raw_artnet_packet(data)
-            #sock_broadcast.sendto(
-            #    packet.data, ('255.255.255.255', BROADCAST_PORT))
-            print(packet)
+            filename = bufferlocation + 'fd' + str(packet.physical)
+            if packet.length == 512: #disregard any packets that dont have all 512 bytes of dmx
+                if not os.path.exists(filename):
+                    print("doesnt exist...creating " + filename)
+                    filedict[packet.physical] = os.open(filename, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
+                    os.write(filedict[packet.physical], b'\x00' * mmap.PAGESIZE)
+                else:
+                    filedict[packet.physical] = os.open(filename, os.O_RDWR)
+                    bufferdict[packet.physical] = mmap.mmap(filedict[packet.physical], 0, mmap.MAP_SHARED, mmap.PROT_WRITE)
+                    bufferdict[packet.physical].seek(0)
+                    bufferdict[packet.physical].write(packet.data)
         except KeyboardInterrupt:
             sock.close()
             sock_broadcast.close()
