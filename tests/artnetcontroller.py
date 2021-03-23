@@ -46,8 +46,10 @@ while True:
     packet.extend(control_interface._session.decoded_access_token)
     packet.append(bytes_per_led)
     for l in range(0,number_of_led*bytes_per_led):
+        #packet.append(255)
         packet.append(ord(buf.read(1)))
     buf.seek(0)
+    #print(packet)
     sock.sendto( packet, (control_interface.host, 7777))
     #print("Length: {}".format(len(packet)))
     #print("{}".format(packet.hex()))
