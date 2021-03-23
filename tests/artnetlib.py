@@ -1,8 +1,8 @@
 import sys
 
-from socket import (socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_REUSEADDR,
-                    SO_BROADCAST)
+from socket import (socket, AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_REUSEADDR,SO_BROADCAST)
 from struct import pack, unpack
+from contextlib import suppress
 
 
 UDP_IP = "192.168.255.255"
@@ -38,20 +38,14 @@ class ArtnetPacket:
             return None
 
         packet = ArtnetPacket()
-        try:
+        with suppress(Exception):
             (packet.op_code, packet.ver, packet.sequence, packet.physical,
                 packet.universe, packet.length) = unpack('!HHBBHH', raw_data[8:18])
-        except Exception:
-            print("data fail")
-            pass
 
-        try:
+        with suppress(Exception):
             packet.data = unpack(
                 '{0}s'.format(int(packet.length)),
                 raw_data[18:18+int(packet.length)])[0]
-        except Exception:
-            print("length fail")
-            pass
 
         return packet
 

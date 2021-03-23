@@ -1,7 +1,7 @@
 import sys
-import xled
+#import xled
 
-sys.path.append("/home/jon/twinkly/Twinkly/artnetlib.py")
+sys.path.append("/tests/artnetlib.py")
 from artnetlib import *
 
 
