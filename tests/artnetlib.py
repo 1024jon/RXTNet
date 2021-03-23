@@ -74,7 +74,7 @@ def listen_and_redirect_artnet_packets():
                     print("doesnt exist...creating " + filename)
                     filedict[packet.physical] = os.open(filename, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
                     os.write(filedict[packet.physical], b'\x00' * mmap.PAGESIZE)
-                else: # once buffer files created/exist, take artnet data and dump into buffer files, one file per universe(physical)
+                else: # once buffer files created/exist, take artnet data and dump into buffer files, one file per universe(physical = universe because)
                     filedict[packet.physical] = os.open(filename, os.O_RDWR)
                     bufferdict[packet.physical] = mmap.mmap(filedict[packet.physical], 0, mmap.MAP_SHARED, mmap.PROT_WRITE)
                     bufferdict[packet.physical].seek(0)
