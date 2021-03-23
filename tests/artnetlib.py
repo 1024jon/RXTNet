@@ -9,8 +9,6 @@ from contextlib import suppress
 UDP_IP = "192.168.255.255"
 UDP_PORT = 6454
 
-BROADCAST_PORT = 7788
-
 bufferlocation = '/tmp/'
 bufferdict = {}
 filedict = {}
@@ -56,9 +54,8 @@ class ArtnetPacket:
 
 
 def listen_and_redirect_artnet_packets():
-    print(("Listening in {0}:{1} and redirecting with "
-           "destination port {2}...").format(
-        UDP_IP, UDP_PORT, BROADCAST_PORT))
+    print(("Listening in {0}:{1} and writing to memory buffers /tmp/fd# ").format(
+        UDP_IP, UDP_PORT))
 
     sock = socket(AF_INET, SOCK_DGRAM)  # UDP
     sock.bind((UDP_IP, UDP_PORT))
@@ -71,13 +68,13 @@ def listen_and_redirect_artnet_packets():
         try:
             data, addr = sock.recvfrom(1024)
             packet = ArtnetPacket().unpack_raw_artnet_packet(data)
-            filename = bufferlocation + 'fd' + str(packet.physical)
+            filename = bufferlocation + 'fd' + str(packet.physical) #create working filename
             if packet.length == 512: #disregard any packets that dont have all 512 bytes of dmx
-                if not os.path.exists(filename):
+                if not os.path.exists(filename): #check if file exsists, if not then create and initialize to 0x00
                     print("doesnt exist...creating " + filename)
                     filedict[packet.physical] = os.open(filename, os.O_CREAT | os.O_TRUNC | os.O_RDWR)
                     os.write(filedict[packet.physical], b'\x00' * mmap.PAGESIZE)
-                else:
+                else: # once buffer files created/exist, take artnet data and dump into buffer files, one file per universe(physical)
                     filedict[packet.physical] = os.open(filename, os.O_RDWR)
                     bufferdict[packet.physical] = mmap.mmap(filedict[packet.physical], 0, mmap.MAP_SHARED, mmap.PROT_WRITE)
                     bufferdict[packet.physical].seek(0)
