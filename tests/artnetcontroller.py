@@ -11,6 +11,10 @@ filename = '/tmp/fd0'
 fd = os.open(filename, os.O_RDONLY)
 buf = mmap.mmap(fd, 0, mmap.MAP_SHARED, mmap.PROT_READ)
 
+filename2 = '/tmp/fd1'
+fd = os.open(filename2, os.O_RDONLY)
+buf2 = mmap.mmap(fd, 0, mmap.MAP_SHARED, mmap.PROT_READ)
+
 
 #discovered_device = xled.discover.discover()
 #print(discovered_device)
@@ -40,17 +44,24 @@ print("Open UDP Socket.")
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 
 buf.seek(0)
+buf2.seek(0)
 i=0
 while True:
     packet = bytearray(b'\x01')
     packet.extend(control_interface._session.decoded_access_token)
     packet.append(bytes_per_led)
     for l in range(0,number_of_led*bytes_per_led):
-        #packet.append(255)
-        packet.append(ord(buf.read(1)))
+        #time.sleep(0.5)
+        if l <= 512:
+            #print("universe1")
+            packet.append(ord(buf.read(1)))
+        else:
+            #print("universe2")
+            packet.append(ord(buf2.read(1)))
     buf.seek(0)
+    buf2.seek(0)
     #print(packet)
     sock.sendto( packet, (control_interface.host, 7777))
     #print("Length: {}".format(len(packet)))
     #print("{}".format(packet.hex()))
-    time.sleep(0.5)
+    time.sleep(0.025)
