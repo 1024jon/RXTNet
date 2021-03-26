@@ -51,17 +51,20 @@ while True:
     packet.extend(control_interface._session.decoded_access_token)
     packet.append(bytes_per_led)
     for l in range(0,number_of_led*bytes_per_led):
-        #time.sleep(0.5)
-        if l <= 512:
-            #print("universe1")
+        if l <= 512:#512 - start channel?
+            if l = 512 - 3 or l = 512 - 2:
+                #next universe
+                #break
+            #start universe
             packet.append(ord(buf.read(1)))
         else:
-            #print("universe2")
             packet.append(ord(buf2.read(1)))
     buf.seek(0)
     buf2.seek(0)
     #print(packet)
-    sock.sendto( packet, (control_interface.host, 7777))
+    sock.sendto(packet, (control_interface.host, 7777))
     #print("Length: {}".format(len(packet)))
     #print("{}".format(packet.hex()))
     time.sleep(0.025)
+    
+def packetdata()
