@@ -19,13 +19,9 @@ except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
 
-cur = conn.cursor()
+curinsert = conn.cursor(buffered=False)
 controllerlist = []
-#try:
-    #cur.execute("INSERT INTO rxtnet.Riverside(Name, MacAddress, IP, NumLEDS, ChannelsPerLED, StartChannel) VALUES (?, ?, ?, ?, ?, ?)",('Twinkly1', 'ddddddd', '192.168.0.8', '250', '3', '(0,0)'))
-    #conn.commit()
-#except mariadb.Error as e:
-        #print(f"Error: {e}")
+
 controllers = xled.discover.xdiscover(None, None, 30)
 
 with suppress(xled.exceptions.DiscoverTimeout):
@@ -36,8 +32,8 @@ try:
     for con in controllerlist:
         control_interface = xled.ControlInterface(con.ip_address, con.hw_address)
         device_info = control_interface.get_device_info()
-        cur.execute("INSERT INTO rxtnet.Riverside(Name, MacAddress, IP, NumLEDS, ChannelsPerLED, StartChannel) VALUES (?, ?, ?, ?, ?, ?)",
-                (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), '(0,0)'))
+        curinsert.execute("INSERT INTO rxtnet.Riverside(Name, MacAddress, IP, NumLEDS, ChannelsPerLED, StartChannel, StartUniverse) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), '0', '0'))
         conn.commit()
 except mariadb.Error as e:
     print(f"Error: {e}")
