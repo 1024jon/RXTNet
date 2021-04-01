@@ -19,8 +19,6 @@ except mariadb.Error as e:
     print(f"Error connecting to MariaDB Platform: {e}")
     sys.exit(1)
 
-curinsert = conn.cursor(buffered=False)
-curselect = conn.cursor(buffered=False)
 controllerlist = []
 
 controllers = xled.discover.xdiscover(None, None, 30)
@@ -31,20 +29,28 @@ with suppress(xled.exceptions.DiscoverTimeout):
         print(controllerlist)
 try:
     for con in controllerlist:
+        curinsert = conn.cursor(buffered=False)
+        curselect = conn.cursor(buffered=False)
+        
         curselect.execute("SELECT StartChannel, StartUniverse, NumLEDS, ChannelsPerLED FROM Riverside ORDER BY id DESC LIMIT 1;")
         sel_results = curselect.fetchone()
+        curselect.close()
         control_interface = xled.ControlInterface(con.ip_address, con.hw_address)
         device_info = control_interface.get_device_info()
-        if not startaddr:
+        if not sel_results:
             curinsert.execute("INSERT INTO rxtnet.Riverside(Name, MacAddress, IP, NumLEDS, ChannelsPerLED, StartChannel, StartUniverse) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), '0', '0'))
+                    (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), '1', '0'))
+            conn.commit()
+            curinsert.close()
         else:
             startchannel = sel_results[0]
             startuniverse = sel_results[1]
             usedchannels = sel_results[2] * sel_results[3]
-            nextaddr = [startuniverse + (usedchannels//512), startchannel + ((usedchannels%512) +1)]
+            nextaddr = [startuniverse + (usedchannels//512), startchannel + ((usedchannels%512))]
             curinsert.execute("INSERT INTO rxtnet.Riverside(Name, MacAddress, IP, NumLEDS, ChannelsPerLED, StartChannel, StartUniverse) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), nextaddr[0], nextaddr[1]))
-        conn.commit()
+                    (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), nextaddr[1], nextaddr[0]))
+            conn.commit()
+            curinsert.close()
+
 except mariadb.Error as e:
     print(f"Error: {e}")
