@@ -26,7 +26,7 @@ app.config["DEBUG"] = True
 @app.route('/', methods=['GET'])
 def home():
     return '''<h1>RXTNet</h1>
-<p>A prototype API for controlling Twinkly lights with ARTNet.</p>'''
+<p>A prototype API for controlling Twinkly lights with ARTNet and web ui control.</p>'''
 
 
 @app.route('/api/v1/controllers/all', methods=['GET'])
