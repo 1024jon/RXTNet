@@ -1,41 +1,85 @@
+import sys
+sys.path.append("/home/server/git/RXTNet/xled")
+import xled
+import mariadb
+from contextlib import suppress
 import flask
 from flask import request, jsonify
+
+try:
+    conn = mariadb.connect(
+        user="testuser",
+        password="1q2w3e4r",
+        host="127.0.0.1",
+        port=3306,
+        database="rxtnet"
+
+    )
+except mariadb.Error as e:
+    print(f"Error connecting to MariaDB Platform: {e}")
+    sys.exit(1)
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-# Create some test data for our catalog in the form of a list of dictionaries.
-books = [
-    {'id': 0,
-     'title': 'A Fire Upon the Deep',
-     'author': 'Vernor Vinge',
-     'first_sentence': 'The coldsleep itself was dreamless.',
-     'year_published': '1992'},
-    {'id': 1,
-     'title': 'The Ones Who Walk Away From Omelas',
-     'author': 'Ursula K. Le Guin',
-     'first_sentence': 'With a clamor of bells that set the swallows soaring, the Festival of Summer came to the city Omelas, bright-towered by the sea.',
-     'published': '1973'},
-    {'id': 2,
-     'title': 'Dhalgren',
-     'author': 'Samuel R. Delany',
-     'first_sentence': 'to wound the autumnal city.',
-     'published': '1975'}
-]
-
 
 @app.route('/', methods=['GET'])
 def home():
-    return '''<h1>Distant Reading Archive</h1>
-<p>A prototype API for distant reading of science fiction novels.</p>'''
+    return '''<h1>RXTNet</h1>
+<p>A prototype API for controlling Twinkly lights with ARTNet.</p>'''
 
 
-@app.route('/api/v1/resources/books/all', methods=['GET'])
+@app.route('/api/v1/controllers/all', methods=['GET'])
 def api_all():
-    return jsonify(books)
+    curselect = conn.cursor(buffered=False)
+    curselect.execute("SELECT * FROM Riverside ORDER BY id ASC;")
+    controllersdict = curselect.fetchall()
+    curselect.close()    
+    return jsonify(controllersdict)
+
+@app.route('/api/v1/controllers/add', methods=['GET'])
+def api_add():
+    controllerlist = []
+    controllers = xled.discover.xdiscover(None, None, 30)
+
+    with suppress(xled.exceptions.DiscoverTimeout):
+        for controller in controllers:
+            controllerlist.append(controller)   
+            print(controllerlist)
+    try:
+        for con in controllerlist:
+            curinsert = conn.cursor(buffered=False)
+            curselect = conn.cursor(buffered=False)
+            
+            curselect.execute("SELECT StartChannel, StartUniverse, NumLEDS, ChannelsPerLED FROM Riverside ORDER BY id DESC LIMIT 1;")
+            sel_results = curselect.fetchone()
+            curselect.close()
+            control_interface = xled.ControlInterface(con.ip_address, con.hw_address)
+            device_info = control_interface.get_device_info()
+            if not sel_results:
+                curinsert.execute("INSERT INTO rxtnet.Riverside(Name, MacAddress, IP, NumLEDS, ChannelsPerLED, StartChannel, StartUniverse) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), '1', '0'))
+                conn.commit()
+                curinsert.close()
+            else:
+                startchannel = sel_results[0]
+                startuniverse = sel_results[1]
+                usedchannels = sel_results[2] * sel_results[3]
+                burnedchannels = ((usedchannels//512)-1) + ((512-startchannel+1)%sel_results[3])
+                nextaddr = [startuniverse + (usedchannels//512), startchannel + (usedchannels%512) + burnedchannels]
+                curinsert.execute("INSERT INTO rxtnet.Riverside(Name, MacAddress, IP, NumLEDS, ChannelsPerLED, StartChannel, StartUniverse) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        (con.id, con.hw_address, con.ip_address, device_info["number_of_led"], len(device_info["led_profile"]), nextaddr[1], nextaddr[0]))
+                conn.commit()
+                curinsert.close()
+
+    except mariadb.Error as e:
+        print(f"Error: {e}")
+
+    return api_all()
 
 
-@app.route('/api/v1/resources/books', methods=['GET'])
+
+@app.route('/api/v1/controllers/id', methods=['GET'])
 def api_id():
     # Check if an ID was provided as part of the URL.
     # If ID is provided, assign it to a variable.
@@ -50,9 +94,11 @@ def api_id():
 
     # Loop through the data and match results that fit the requested ID.
     # IDs are unique, but other fields might return many results
-    for book in books:
-        if book['id'] == id:
-            results.append(book)
+    curselect = conn.cursor(buffered=False)
+    dbquery = "SELECT * FROM Riverside WHERE ID={0};".format(id)
+    curselect.execute(dbquery)
+    results = curselect.fetchall()
+    curselect.close()  
 
     # Use the jsonify function from Flask to convert our list of
     # Python dictionaries to the JSON format.
