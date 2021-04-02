@@ -119,6 +119,7 @@ def api_highlight():
 
     curselect.execute(dbquery)
     results = curselect.fetchone()
+    curselect.close()
 
     control_interface = xled.ControlInterface(results[1], results[0])
     hicontrol = xled.HighControlInterface(results[1])
@@ -162,6 +163,7 @@ def api_staticcolor():
 
     curselect.execute(dbquery)
     results = curselect.fetchone()
+    curselect.close()
 
     control_interface = xled.ControlInterface(results[1], results[0])
     hicontrol = xled.HighControlInterface(results[1])
