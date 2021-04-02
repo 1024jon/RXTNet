@@ -101,4 +101,77 @@ def api_id():
     # Python dictionaries to the JSON format.
     return jsonify(results)
 
+
+@app.route('/api/v1/controllers/highlight', methods=['GET'])
+def api_highlight():
+    # Check if an ID was provided as part of the URL.
+    # If ID is provided, assign it to a variable.
+    # If no ID is provided, display an error in the browser.
+    if 'id' in request.args:
+        id = int(request.args['id'])
+    else:
+        return "Error: No id field provided. Please specify an id."
+
+    curselect = conn.cursor(buffered=False)
+    conID = id
+    
+    dbquery = "SELECT MacAddress, IP FROM Riverside WHERE ID={0}".format(conID)
+
+    curselect.execute(dbquery)
+    results = curselect.fetchone()
+
+    control_interface = xled.ControlInterface(results[1], results[0])
+    hicontrol = xled.HighControlInterface(results[1])
+    control_interface.set_mode('movie')
+    hicontrol.set_static_color(255,255,255)
+
+    # Use the jsonify function from Flask to convert our list of
+    # Python dictionaries to the JSON format.
+    return jsonify(results)
+
+
+@app.route('/api/v1/controllers/staticcolor', methods=['GET'])
+def api_staticcolor():
+    # Check if an ID was provided as part of the URL.
+    # If ID is provided, assign it to a variable.
+    # If no ID is provided, display an error in the browser.
+    if 'id' in request.args:
+        id = int(request.args['id'])
+    else:
+        return "Error: No id field provided. Please specify an id."
+    
+    if 'red' in request.args:
+        red = int(request.args['red'])
+    else:
+        return "Error: No red field provided. Please specify an red."
+    
+    if 'green' in request.args:
+        green = int(request.args['green'])
+    else:
+        return "Error: No green field provided. Please specify an green."
+    
+    if 'blue' in request.args:
+        blue = int(request.args['blue'])
+    else:
+        return "Error: No blue field provided. Please specify an blue."
+
+    curselect = conn.cursor(buffered=False)
+    conID = id
+    
+    dbquery = "SELECT MacAddress, IP FROM Riverside WHERE ID={0}".format(conID)
+
+    curselect.execute(dbquery)
+    results = curselect.fetchone()
+
+    control_interface = xled.ControlInterface(results[1], results[0])
+    hicontrol = xled.HighControlInterface(results[1])
+    control_interface.set_mode('movie')
+    hicontrol.set_static_color(red, green, blue)
+
+    # Use the jsonify function from Flask to convert our list of
+    # Python dictionaries to the JSON format.
+    return jsonify(results)
+
+
+
 app.run()
