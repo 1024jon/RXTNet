@@ -89,9 +89,6 @@ def api_id():
     else:
         return "Error: No id field provided. Please specify an id."
 
-    # Create an empty list for our results
-    results = []
-
     # Loop through the data and match results that fit the requested ID.
     # IDs are unique, but other fields might return many results
     curselect = conn.cursor(buffered=False)
