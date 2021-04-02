@@ -24,7 +24,7 @@ red = 255
 green = 255
 blue = 255
 
-curselect.execute("SELECT MacAddress, IP FROM Riverside WHERE id=conID")
+curselect.execute("SELECT MacAddress, IP FROM Riverside WHERE ID=conID")
 results = curselect.fetchone()
 
 control_interface = xled.ControlInterface(results[1], results[0])

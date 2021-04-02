@@ -21,7 +21,7 @@ except mariadb.Error as e:
 curselect = conn.cursor(buffered=False)
 conID = 43
 
-curselect.execute("SELECT MacAddress, IP FROM Riverside WHERE id=conID")
+curselect.execute("SELECT MacAddress, IP FROM Riverside WHERE ID=conID")
 results = curselect.fetchone()
 
 control_interface = xled.ControlInterface(results[1], results[0])
