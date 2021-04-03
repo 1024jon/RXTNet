@@ -6,11 +6,9 @@ from __future__ import absolute_import
 
 import logging
 import time
-import socket
 
 import click
 import click_log
-import os
 
 import xled.auth
 import xled.control
@@ -211,60 +209,3 @@ def update_firmware(ctx, stage0, stage1):
         click.echo(hci_err, err=True)
     else:
         click.echo("Firmware update successful.")
-
-@main.command(name="realtime", help="Turns realtime on.")
-@click.pass_context
-def realtime(ctx):
-    #file = open("/home/jon/750.bin", 'rb')
-    print("hello?")
-    control_interface = common_preamble(ctx.obj.get("name"), ctx.obj.get("hostname"))
-    log.debug("Get device info...")
-    response = control_interface.get_device_info()
-    number_of_led = response["number_of_led"]
-    led_profile = response["led_profile"]
-    bytes_per_led = len(led_profile)
-    max_frame = (bytes_per_led*number_of_led)
-    click.echo("LED profile: {}".format(led_profile))
-    click.echo("Format: {}".format(number_of_led))
-    click.echo("Bytes per LED: {}".format(bytes_per_led))
-    click.echo("Max Frame Size: {}".format(max_frame))
-    click.echo("Max Packet Size: {}".format(max_frame+10))
-    log.debug("Turning realtime on...")
-    control_interface.realtime()
-    click.echo("Realtime turned on. Send packets to {}:7777".format(control_interface.host))
-    click.echo("Authentication Token: {} / {}".format(
-        control_interface._session.access_token,
-        control_interface._session.decoded_access_token.hex()))
-    click.echo("Open UDP Socket.")
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
-#    for x in range(1,500):
-        #click.echo("LED {}".format(l))
-#        packet = bytearray(b'\x01')
-#        packet.extend(control_interface._session.decoded_access_token)
-#        packet.append(bytes_per_led)
-#        for l in range(0,number_of_led*bytes_per_led):
-#            packet.append(ord(file.read(1)))
-        #time.sleep(1)
-
-#    for l in range(1, number_of_led+1):
-#        click.echo("LED {}".format(l))
-#        packet = bytearray(b'\x01')
-#        packet.extend(control_interface._session.decoded_access_token)
-#        packet.append(bytes_per_led)
-#        for f in range(1, number_of_led+1):
- #           for x in range(0,bytes_per_led):
- #               if f==l:
- #                   packet.append(ord(file.read(1)))
-                    #packet.append(255)
-#                else:
- #                   packet.append(0)
-    while True:
-        packet = bytearray(b'\x01')
-        packet.extend(control_interface._session.decoded_access_token)
-        packet.append(bytes_per_led)
-        for l in range(0,number_of_led*bytes_per_led):
-           packet.append(ord(os.urandom(1)))
-        sock.sendto( packet, (control_interface.host, 7777))
-        #click.echo("Length: {}".format(len(packet)))
-        #click.echo("{}".format(packet.hex()))
-        time.sleep(0.025)
