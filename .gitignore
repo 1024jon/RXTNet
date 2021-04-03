@@ -2,3 +2,4 @@
 tests/__pycache__
 tests/Twinkly.pyproj
 tests/Twinkly.sln
+.gitignore
