@@ -193,8 +193,35 @@ def api_listgroups():
     curselect.close()
     return jsonify(groups)
     
-#@app.route('/api/v1/controllers/update', methods=['POST?'])
-#def api_update_field():
+@app.route('/api/v1/controllers/update', methods=['GET'])
+def api_update_field():
+    
+    if 'id' in request.args:
+        id = int(request.args['id'])
+    else:
+        return "Error: No id field provided. Please specify an id."
+    
+    if 'fieldname' in request.args:
+        fieldname = request.args['fieldname']
+    else:
+        return "Error: No field provided. Please specify a field."
+    
+    if 'value' in request.args:
+        value = request.args['value']
+    else:
+        return "Error: No value provided. Please specify a value."
+        
+    dbquery = "UPDATE Riverside SET {0}='{1}' WHERE ID={2}".format(fieldname, value, id)
+    curselect = conn.cursor(buffered=False)
+    curselect.execute(dbquery)
+    conn.commit()
+    
+    dbquery = "SELECT * FROM Riverside WHERE ID={0};".format(id)
+    curselect.execute(dbquery)
+    results = curselect.fetchall()   
+    curselect.close()
+    
+    return jsonify(results)
     #update
     #take in id, field, data for field
 
