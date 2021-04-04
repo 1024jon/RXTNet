@@ -6,6 +6,7 @@ from contextlib import suppress
 import flask
 from flask import request, jsonify
 
+#need to move to db file
 try:
     conn = mariadb.connect(
         user="testuser",
@@ -173,6 +174,14 @@ def api_staticcolor():
     # Use the jsonify function from Flask to convert our list of
     # Python dictionaries to the JSON format.
     return jsonify(results)
+
+#@app.route('/api/v1/controllers/groups/all', methods=['GET'])
+#def api_listgroups():
+    #if not null?
+    #create dict
+    #if group not in dict, add + 1
+    #if in dict + 1
+    #return dict
 
 
 
