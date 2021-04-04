@@ -182,6 +182,11 @@ def api_staticcolor():
     #if group not in dict, add + 1
     #if in dict + 1
     #return dict
+    
+#@app.route('/api/v1/controllers/update', methods=['POST?'])
+#def api_update_field():
+    #update works for null?
+    #take in id, field, data for field
 
 
 
