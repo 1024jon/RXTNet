@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/server/git/RXTNet/xled")
+sys.path.append("/home/server/git/RXTNet")
 import xled
 import mariadb
 from contextlib import suppress
@@ -157,7 +157,7 @@ def api_staticcolor():
     else:
         return "Error: No blue field provided. Please specify an blue."
 
-    curselect = conn.cursor(buffered=False)
+    
     conID = id
     
     dbquery = "SELECT MacAddress, IP FROM Riverside WHERE ID={0}".format(conID)
@@ -178,10 +178,20 @@ def api_staticcolor():
 @app.route('/api/v1/controllers/groups/all', methods=['GET'])
 def api_listgroups():
     #where groupname IS NOT NULL
-    #create dict
-    #if group not in dict, add + 1
-    #if in dict + 1
-    #return dict
+    dbquery = "SELECT MacAddress, IP, ID, GroupName FROM Riverside WHERE GroupName IS NOT NULL"
+    curselect = conn.cursor(buffered=False)
+    curselect.execute(dbquery)
+    results = curselect.fetchall()
+    
+    groups = {}
+    
+    for item in results:
+        if item[3] in groups:
+            groups[item[3]] += 1
+        else:
+            groups[item[3]] = 1
+    curselect.close()
+    return jsonify(groups)
     
 #@app.route('/api/v1/controllers/update', methods=['POST?'])
 #def api_update_field():
