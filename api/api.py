@@ -175,9 +175,9 @@ def api_staticcolor():
     # Python dictionaries to the JSON format.
     return jsonify(results)
 
-#@app.route('/api/v1/controllers/groups/all', methods=['GET'])
-#def api_listgroups():
-    #if not null?
+@app.route('/api/v1/controllers/groups/all', methods=['GET'])
+def api_listgroups():
+    #where groupname IS NOT NULL
     #create dict
     #if group not in dict, add + 1
     #if in dict + 1
@@ -185,7 +185,7 @@ def api_staticcolor():
     
 #@app.route('/api/v1/controllers/update', methods=['POST?'])
 #def api_update_field():
-    #update works for null?
+    #update
     #take in id, field, data for field
 
 
