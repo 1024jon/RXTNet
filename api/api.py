@@ -40,8 +40,13 @@ def api_all():
 
 @app.route('/api/v1/controllers/add', methods=['POST'])
 def api_add():
+    jsondata = request.get_json()
+    if 'timeout' in jsondata:
+        timeout = int(jsondata['timeout'])
+    else:
+        return "Need timeout value"
     controllerlist = []
-    controllers = xled.discover.xdiscover(None, None, 30)
+    controllers = xled.discover.xdiscover(None, None, timeout)
 
     with suppress(xled.exceptions.DiscoverTimeout):
         for controller in controllers:
