@@ -5,3 +5,4 @@ tests/Twinkly.sln
 temp
 .env
 xled/__pycache__
+api/__pycache__

@@ -1,5 +1,6 @@
 import sys
 sys.path.append("/home/server/git/RXTNet")
+import dbconnect as dbc
 import xled
 import mariadb
 from contextlib import suppress
@@ -7,19 +8,7 @@ import flask
 from flask import request, jsonify
 
 #need to move to db file
-try:
-    conn = mariadb.connect(
-        user="testuser",
-        password="1q2w3e4r",
-        host="127.0.0.1",
-        port=3306,
-        database="rxtnet"
-
-    )
-except mariadb.Error as e:
-    print(f"Error connecting to MariaDB Platform: {e}")
-    sys.exit(1)
-
+conn = dbc.dbconnect()
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
