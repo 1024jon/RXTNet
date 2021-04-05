@@ -38,7 +38,7 @@ def api_all():
     curselect.close()    
     return jsonify(controllersdict)
 
-@app.route('/api/v1/controllers/add', methods=['GET'])
+@app.route('/api/v1/controllers/add', methods=['POST'])
 def api_add():
     controllerlist = []
     controllers = xled.discover.xdiscover(None, None, 30)
@@ -103,20 +103,21 @@ def api_id():
     return jsonify(results)
 
 
-@app.route('/api/v1/controllers/highlight', methods=['GET'])
+@app.route('/api/v1/controllers/highlight', methods=['POST'])
 def api_highlight():
     # Check if an ID was provided as part of the URL.
     # If ID is provided, assign it to a variable.
     # If no ID is provided, display an error in the browser.
-    if 'id' in request.args:
-        id = int(request.args['id'])
+    jsondata = request.get_json()
+        
+    if 'id' in jsondata:
+        id = int(jsondata['id'])
     else:
         return "Error: No id field provided. Please specify an id."
 
     curselect = conn.cursor(buffered=False)
-    conID = id
     
-    dbquery = "SELECT MacAddress, IP FROM Riverside WHERE ID={0}".format(conID)
+    dbquery = "SELECT MacAddress, IP FROM Riverside WHERE ID={0}".format(id)
 
     curselect.execute(dbquery)
     results = curselect.fetchone()
@@ -132,35 +133,37 @@ def api_highlight():
     return jsonify(results)
 
 
-@app.route('/api/v1/controllers/staticcolor', methods=['GET'])
+@app.route('/api/v1/controllers/staticcolor', methods=['POST'])
 def api_staticcolor():
     # Check if an ID was provided as part of the URL.
     # If ID is provided, assign it to a variable.
     # If no ID is provided, display an error in the browser.
-    if 'id' in request.args:
-        id = int(request.args['id'])
+    jsondata = request.get_json()
+    
+    if 'id' in jsondata:
+        id = int(jsondata['id'])
     else:
         return "Error: No id field provided. Please specify an id."
     
-    if 'red' in request.args:
-        red = int(request.args['red'])
+    if 'red' in jsondata:
+        red = int(jsondata['red'])
     else:
         return "Error: No red field provided. Please specify an red."
     
-    if 'green' in request.args:
-        green = int(request.args['green'])
+    if 'green' in jsondata:
+        green = int(jsondata['green'])
     else:
         return "Error: No green field provided. Please specify an green."
     
-    if 'blue' in request.args:
-        blue = int(request.args['blue'])
+    if 'blue' in jsondata:
+        blue = int(jsondata['blue'])
     else:
         return "Error: No blue field provided. Please specify an blue."
 
     
-    conID = id
+
     
-    dbquery = "SELECT MacAddress, IP FROM Riverside WHERE ID={0}".format(conID)
+    dbquery = "SELECT MacAddress, IP FROM Riverside WHERE ID={0}".format(id)
 
     curselect.execute(dbquery)
     results = curselect.fetchone()
@@ -193,21 +196,24 @@ def api_listgroups():
     curselect.close()
     return jsonify(groups)
     
-@app.route('/api/v1/controllers/update', methods=['GET'])
+@app.route('/api/v1/controllers/update', methods=['POST'])
 def api_update_field():
+    #example curl post
+    #curl --header "Content-Type: application/json" --request POST --data '{"id":"46","fieldname":"GroupName","value":"test5"}' http://127.0.0.1:5000/api/v1/controllers/update
+    jsondata = request.get_json()
     
-    if 'id' in request.args:
-        id = int(request.args['id'])
+    if 'id' in jsondata:
+        id = int(jsondata['id'])
     else:
         return "Error: No id field provided. Please specify an id."
     
-    if 'fieldname' in request.args:
-        fieldname = request.args['fieldname']
+    if 'fieldname' in jsondata:
+        fieldname = jsondata['fieldname']
     else:
         return "Error: No field provided. Please specify a field."
     
-    if 'value' in request.args:
-        value = request.args['value']
+    if 'value' in jsondata:
+        value = jsondata['value']
     else:
         return "Error: No value provided. Please specify a value."
         
