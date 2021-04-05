@@ -8,9 +8,10 @@ import flask
 from flask import request, jsonify
 
 #need to move to db file
-conn = dbc.dbconnect()
-app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+conn = dbc.dbconnect()  #connect to database, returns db connection object
+
+app = flask.Flask(__name__) #name flask app
+app.config["DEBUG"] = True  #set debug
 
 
 @app.route('/', methods=['GET'])
