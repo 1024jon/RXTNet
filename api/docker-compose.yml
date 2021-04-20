@@ -16,7 +16,6 @@ services:
             - PMA_ARBITRARY=1
 
     rxtnet-api:
-        image: python:3
-        build:
-            context: ./
-            dockerfile: dockerfile
+        build: .
+        ports:
+            - 8083:5000

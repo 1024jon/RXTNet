@@ -3,9 +3,9 @@ import mariadb
 def dbconnect():
     try:
         conn = mariadb.connect(
-            user="testuser",
+            user="root",
             password="1q2w3e4r",
-            host="127.0.0.1",
+            host='db',
             port=3306,
             database="rxtnet"
         )

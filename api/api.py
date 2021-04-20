@@ -1,5 +1,5 @@
 import sys
-sys.path.append("/home/server/git/RXTNet")
+#sys.path.append("/usr/src/app")
 import dbconnect as dbc
 import xled
 import mariadb
