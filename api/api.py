@@ -228,4 +228,4 @@ def api_update_field():
 
 
 
-app.run()
+app.run(host='0.0.0.0')

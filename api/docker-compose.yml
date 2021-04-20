@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+    db:
+        image: mariadb:10.3
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 1q2w3e4r
+
+    phpmyadmin:
+        image: phpmyadmin
+        restart: always
+        ports:
+            - 8082:80
+        environment:
+            - PMA_ARBITRARY=1
+
+    rxtnet-api:
+        image: python:3
+        build:
+            context: ./
+            dockerfile: dockerfile
