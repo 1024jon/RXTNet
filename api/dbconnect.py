@@ -5,7 +5,7 @@ def dbconnect():
         conn = mariadb.connect(
             user="root",
             password="1q2w3e4r",
-            host='db',
+            host="db",
             port=3306,
             database="rxtnet"
         )
