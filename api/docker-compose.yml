@@ -18,6 +18,7 @@ services:
             - PMA_ARBITRARY=1
 
     rxtnet-api:
+        restart: always
         depends_on: 
             - db
         build: .
