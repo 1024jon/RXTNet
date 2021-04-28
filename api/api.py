@@ -7,8 +7,7 @@ from contextlib import suppress
 import flask
 from flask import request, jsonify
 
-#need to move to db file
-conn = dbc.dbconnect()  #connect to database, returns db connection object
+
 
 app = flask.Flask(__name__) #name flask app
 app.config["DEBUG"] = True  #set debug
@@ -22,10 +21,12 @@ def home():
 
 @app.route('/api/v1/controllers/all', methods=['GET'])
 def api_all():
+    conn = dbc.dbconnect()  #connect to database, returns db connection object
     curselect = conn.cursor(buffered=False)
     curselect.execute("SELECT * FROM Riverside ORDER BY id ASC;")
     controllersdict = curselect.fetchall()
-    curselect.close()    
+    curselect.close()   
+    conn.close() 
     return jsonify(controllersdict)
 
 @app.route('/api/v1/controllers/add', methods=['POST'])

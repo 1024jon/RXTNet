@@ -7,7 +7,7 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: 1q2w3e4r
         volumes: 
-            - ./dbfolder:/var/lib/mysql
+            - /docker/apidb:/var/lib/mysql
 
     phpmyadmin:
         image: phpmyadmin
