@@ -23,4 +23,4 @@ services:
             - db
         build: .
         ports:
-            - 8083:5000
+            - 8083:80
